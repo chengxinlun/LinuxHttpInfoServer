@@ -8,6 +8,7 @@
 #include "http_partial.h"
 #include "http_server.h"
 #include "sys_info.h"
+#include "thread_pool.h"
 
 
 HttpServer::HttpServer(unsigned short port)
@@ -18,6 +19,14 @@ HttpServer::HttpServer(unsigned short port)
     server_addr.sin_port = htons(port);
     if (bind(socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)))
         throw std::runtime_error("Unable to bind to designated port.");
+    // Load libTheadPool
+    libthreadpool = dlopen("./libThreadPool.so", RTLD_LAZY);
+    // Define constructor and deconstructor
+    ThreadPool* (*create_pool)(int);
+    void (*destroy_pool)(ThreadPool*);
+    create_pool = (ThreadPool* (*)(int))dlsym(libthreadpool, "create_pool");
+    destroy_pool = (void(*)(ThreadPool*))dlsym(libthreadpool, "destroy_pool");
+    pool = (ThreadPool*)create_pool(4);
 }
 
 
@@ -25,17 +34,20 @@ void HttpServer::launch()
 {
     std::cout << "Press Ctrl + C to exit." << std::endl;
     listen(socket_fd, 5);
-    // When request is received
-    socklen_t client_len;
-    struct sockaddr_in client_addr;
-    client_len = sizeof(client_addr);
-    int new_socket_fd;
-    new_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr, & client_len);
-    service(new_socket_fd);
+    while (true)
+    {
+        // When request is received
+        socklen_t client_len;
+        struct sockaddr_in client_addr;
+        client_len = sizeof(client_addr);
+        int new_socket_fd;
+        new_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr, & client_len);
+        pool->enqueue([&](int i){return this->service(i);}, new_socket_fd);
+    }
 }
 
 
-void* HttpServer::service(int new_socket_fd)
+void HttpServer::service(int new_socket_fd)
 {
     char buffer[2048];
     while (true)
@@ -133,7 +145,6 @@ void* HttpServer::service(int new_socket_fd)
         delete rs;
     }
     close(new_socket_fd);
-    return NULL;
 }
 
 
