@@ -81,6 +81,7 @@ class Response
         Response(int code, std::string phrase, std::string html);
         ~Response();
         std::string toString();
+        void add_header(std::unordered_map<std::string, std::string>* extra_header);
 
     private:
         std::string version;
@@ -124,5 +125,12 @@ std::string Response::toString()
         header_s = header_s + i->first + ": " + i->second + "\r\n";
     std::string finale = first + header_s + "\r\n" + body;
     return finale;
+}
+
+
+// Add extra header
+void Response::add_header(std::unordered_map<std::string, std::string>* extra_header)
+{
+    header->insert(extra_header->begin(), extra_header->end());
 }
 #endif
