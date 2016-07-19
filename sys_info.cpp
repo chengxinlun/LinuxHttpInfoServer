@@ -1,9 +1,12 @@
+#include <sys/statvfs.h>
 #include <fstream>
 #include <iostream>
 #include <sys/utsname.h>
 #include <ctime>
 #include <cstdlib>
 #include <cstdio>
+#include <sstream>
+#include <iomanip>
 #include "sys_info.h"
 
 
@@ -50,13 +53,29 @@ OsInfo::~OsInfo()
 }
 
 
-extern "C" OsInfo* create_object()
+std::string OsInfo::get_du(const char* path)
+{
+    struct statvfs du;
+    int n = statvfs(path, &du);
+    if (n == -1)
+        return "Cannot get disk usage.";
+    else
+    {
+        double fs_g = du.f_bsize * du.f_bfree / (1024.0 * 1024.0 * 1024.0);
+        double fs_r = du.f_bfree / du.f_blocks * 100.0;
+        std::stringstream res;
+        res << std::fixed << std::setprecision(2) << fs_g << "G (" << fs_r << "\%)";
+        return res.str();
+    }
+}
+
+extern "C" OsInfo* create_osinfo()
 {
     return new OsInfo();
 }
 
 
-extern "C" void destroy_object(OsInfo* object)
+extern "C" void destroy_osinfo(OsInfo* object)
 {
     delete object;
 }

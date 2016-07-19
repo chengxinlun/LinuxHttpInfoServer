@@ -26,8 +26,8 @@ class ThreadPool
     	std::condition_variable condition;
     	bool stop;
 };
- 
-// the constructor just launches some amount of workers
+
+
 ThreadPool::ThreadPool(size_t threads)
 {
     for(size_t i = 0;i<threads;++i)
@@ -54,7 +54,7 @@ ThreadPool::ThreadPool(size_t threads)
         );
 }
 
-// add new work item to the pool
+
 template<class F, class... Args>
     auto ThreadPool::enqueue(F&& f, Args&&... args) 
         -> std::future<typename std::result_of<F(Args...)>::type>
@@ -68,8 +68,6 @@ template<class F, class... Args>
     std::future<return_type> res = task->get_future();
     {
         std::unique_lock<std::mutex> lock(queue_mutex);
-
-        // don't allow enqueueing after stopping the pool
         if(stop)
             throw std::runtime_error("enqueue on stopped ThreadPool");
 
@@ -89,17 +87,5 @@ ThreadPool::~ThreadPool()
     condition.notify_all();
     for(size_t i = 0; i < workers.size(); i++)
         workers[i].join();
-}
-
-
-extern "C" ThreadPool* create_pool(size_t threads)
-{
-    return new ThreadPool(threads);
-}
-
-
-extern "C" void destroy_pool(ThreadPool* object)
-{
-    delete object;
 }
 #endif

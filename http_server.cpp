@@ -19,23 +19,16 @@ HttpServer::HttpServer(unsigned short port)
     server_addr.sin_port = htons(port);
     if (bind(socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)))
         throw std::runtime_error("Unable to bind to designated port.");
-    // Load libTheadPool
-    libthreadpool = dlopen("./libThreadPool.so", RTLD_LAZY);
-    // Define constructor and deconstructor
-    ThreadPool* (*create_pool)(int);
-    void (*destroy_pool)(ThreadPool*);
-    create_pool = (ThreadPool* (*)(int))dlsym(libthreadpool, "create_pool");
-    destroy_pool = (void(*)(ThreadPool*))dlsym(libthreadpool, "destroy_pool");
-    pool = (ThreadPool*)create_pool(4);
+    pool = new ThreadPool(4);
 }
 
 
 void HttpServer::launch()
 {
     std::cout << "Press Ctrl + C to exit." << std::endl;
-    listen(socket_fd, 5);
     while (true)
     {
+        listen(socket_fd, 5);
         // When request is received
         socklen_t client_len;
         struct sockaddr_in client_addr;
@@ -94,15 +87,16 @@ void HttpServer::service(int new_socket_fd)
                 // Define constructor and deconstructor
                 OsInfo* (*create)();
                 void (*destroy)(OsInfo*);
-                create = (OsInfo* (*)())dlsym(libsysinfo, "create_object");
-                destroy = (void(*)(OsInfo*))dlsym(libsysinfo, "destroy_object");
+                create = (OsInfo* (*)())dlsym(libsysinfo, "create_osinfo");
+                destroy = (void(*)(OsInfo*))dlsym(libsysinfo, "destroy_osinfo");
                 // Create object
                 OsInfo* os_info = (OsInfo*)create();
                 // Create index page
                 html 
-                    = "<html><center><table><tr><td>Time</td><td>" + os_info->get_time() + 
-                    "</td></tr><tr><td>Distribution</td><td>" + os_info->get_dis_ver() +
-                    "</td></tr><tr><td>Kernal</td><td>" + os_info->get_kernel() + 
+                    = "<html><center><table><tr><td>Time: </td><td>" + os_info->get_time() + 
+                    "</td></tr><tr><td>Distribution: </td><td>" + os_info->get_dis_ver() +
+                    "</td></tr><tr><td>Kernel: </td><td>" + os_info->get_kernel() + 
+                    "</td></tr><tr><td>Available Space: </td><td>/: " + os_info->get_du("/") + "</br>/home: " + os_info->get_du("/home") +
                     "</td></tr></table></br><a href=\"/about.html\">About</a></center></html>";
                 // Delete object and unload libSysInfo.so
                 destroy(os_info);
