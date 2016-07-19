@@ -1,7 +1,6 @@
 #include <dlfcn.h>
+#include <iostream>
 #include "http_server.h"
-
-
 
 
 int main()
@@ -15,7 +14,14 @@ int main()
     create = (HttpServer* (*)())dlsym(handle, "create_object");
     destroy = (void(*)(HttpServer*))dlsym(handle, "destroy_object");
     HttpServer* hs = (HttpServer*)create();
-    hs->launch();
-    hs->terminate();
+    try
+    {
+        hs->launch();
+    }
+    catch (const HSException& e)
+    {
+        std::cout << "Terminating" << std::endl;
+        hs->terminate();
+    }
     destroy(hs);
 }

@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <stdexcept>
 #include <cstring>
+#include <csignal>
 #include "http_partial.h"
 #include "http_server.h"
 #include "sys_info.h"
@@ -25,6 +26,7 @@ HttpServer::HttpServer(unsigned short port)
 
 void HttpServer::launch()
 {
+    signal(SIGINT, evac);
     std::cout << "Press Ctrl + C to exit." << std::endl;
     while (true)
     {
@@ -150,6 +152,7 @@ void HttpServer::terminate()
 
 HttpServer::~HttpServer()
 {
+    delete pool;
 }
 
 
