@@ -112,7 +112,7 @@ void* HttpServer::service(int new_socket_fd)
                 // Setting response code and reason phrase
                 code = 302;
                 rp = "Found";
-                
+                extra_header->insert(std::make_pair("Location", "/index.html"));
             }
             else
             {
@@ -124,7 +124,7 @@ void* HttpServer::service(int new_socket_fd)
         }
         // Create response
         Response* rs = new Response(code, rp, html);
-        rp->extend_header(extra_header);
+        rs->add_header(extra_header);
         std::string rss = rs->toString();
         char temp[rss.length() + 1];
         strncpy(temp, rss.c_str(), sizeof(temp));
