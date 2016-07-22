@@ -2,6 +2,8 @@
 #define SYS_INFO_H
 
 #include <string>
+#include <vector>
+
 
 class OsInfo
 {
@@ -12,6 +14,7 @@ class OsInfo
         virtual std::string get_kernel(){return kernel;};
         virtual std::string get_time(){return os_time;};
         virtual std::string get_du(const char* path);
+        virtual std::string get_ps();
 
     private:
         std::string version;

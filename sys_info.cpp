@@ -7,7 +7,41 @@
 #include <cstdio>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include "sys_info.h"
+
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+{
+    std::stringstream ss(s);
+    std::string item;
+    while (getline(ss, item, delim))
+    {
+            elems.push_back(item);
+        }
+    return elems;
+}
+
+
+std::vector<std::string> split(const std::string &s,char delim)
+{
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}
+
+
+void replaceAll(std::string& str, const std::string& from, const std::string& to) 
+{
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) 
+    {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
+}
 
 
 OsInfo::OsInfo()
@@ -68,6 +102,30 @@ std::string OsInfo::get_du(const char* path)
         return res.str();
     }
 }
+
+
+std::string OsInfo::get_ps()
+{
+    FILE *ps_file;
+    ps_file = popen("ps -eo pid,uname,pcpu,pmem,comm", "r");
+    char temp1[1024];
+    std::string temp2 = "";
+    while (fgets(temp1, sizeof(temp1), ps_file) != NULL)
+        temp2 = temp2 + temp1;
+    pclose(ps_file);
+    std::vector<std::string> ps = ::split(temp2, '\n');
+    std::stringstream ss;
+    for (size_t i = 0; i < ps.size(); i++)
+    {
+        ps[i] = ps[i].substr(ps[i].find("\t") + 1, -1);
+        replaceAll(ps[i], " ", "</td><td>");
+        ss << "<tr><td>" << ps[i] << "</td></tr>";
+    }
+    std::string res = ss.str();
+    replaceAll(res, "<td></td>", ""); // Delete extra blank table cells
+    return res;
+}
+
 
 extern "C" OsInfo* create_osinfo()
 {

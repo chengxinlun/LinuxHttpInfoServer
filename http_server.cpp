@@ -98,8 +98,9 @@ void HttpServer::service(int new_socket_fd)
                     = "<html><center><table><tr><td>Time: </td><td>" + os_info->get_time() + 
                     "</td></tr><tr><td>Distribution: </td><td>" + os_info->get_dis_ver() +
                     "</td></tr><tr><td>Kernel: </td><td>" + os_info->get_kernel() + 
-                    "</td></tr><tr><td>Available Space: </td><td>/: " + os_info->get_du("/") + "</br>/home: " + os_info->get_du("/home") +
-                    "</td></tr></table></br><a href=\"/about.html\">About</a></center></html>";
+                    "</td></tr><tr><td>Available Space: </td><td>/: " + os_info->get_du("/") + "<br>/home: " + os_info->get_du("/home") +
+                    "</td></tr>" + os_info->get_ps() +
+                    "</table></br><a href=\"/about.html\">About</a></center></html>";
                 // Delete object and unload libSysInfo.so
                 destroy(os_info);
                 dlclose(libsysinfo);
