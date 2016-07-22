@@ -20,8 +20,8 @@ int main()
     }
     catch (const HSException& e)
     {
-        hs->terminate();
         std::cout << "Terminating" << std::endl;
+        hs->terminate();
     }
     destroy(hs);
 }

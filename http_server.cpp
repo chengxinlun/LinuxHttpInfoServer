@@ -31,7 +31,6 @@ void HttpServer::launch()
     while (true)
     {
         listen(socket_fd, 5);
-        // When request is received
         socklen_t client_len;
         struct sockaddr_in client_addr;
         client_len = sizeof(client_addr);
@@ -142,6 +141,8 @@ void HttpServer::service(int new_socket_fd)
         delete rs;
     }
     close(new_socket_fd);
+    std::cout << "Connection closed with client" << std::endl;
+    return;
 }
 
 
