@@ -8,7 +8,7 @@ class FuncPs: public FuncBase
 {
     public:
         FuncPs();
-        ~FuncPs();
+        ~FuncPs(){};
         static std::pair<std::string, std::string> link()
         {
             return std::make_pair(func_name, lib_name);
@@ -42,4 +42,22 @@ FuncPs::FuncPs()
     std::string res = ss.str();
     replaceAll(res, "<td></td>", ""); // Delete extra blank table cells
     ps_html = "<table>" + res + "</table>";
+}
+
+
+extern "C" FuncBase* create_func()
+{
+    return new FuncPs();
+}
+
+
+extern "C" void destroy_func(FuncBase* object)
+{
+    delete object;
+}
+
+
+extern "C" std::pair<std::string, std::string> getLink()
+{
+    return FuncPs::link();
 }

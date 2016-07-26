@@ -3,6 +3,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <unordered_map>
 #include "thread_pool.h"
 #include <exception>
 
@@ -32,6 +33,7 @@ class HttpServer
         virtual void launch();
         virtual void terminate();
         virtual void service(int new_socket_fd);
+        virtual void getlibs();
         static void evac(int sig)
         {
             HSException hse("ctrl-c");
@@ -41,6 +43,7 @@ class HttpServer
         int socket_fd;
         struct sockaddr_in server_addr;
         ThreadPool* pool;
-        void* libthreadpool;
+        std::mutex cout_mtx;
+        std::unordered_map<std::string, std::string>* libLocator;
 };
 #endif

@@ -1,3 +1,6 @@
+#ifndef FUNCTION_BASE_H
+#define FUNCTION_BASE_H
+
 #include <string>
 #include <vector>
 #include <sstream>
@@ -8,9 +11,9 @@
 class FuncBase
 {
     public:
-        FuncBase();
-        ~FuncBase();
-        virtual std::string getResult();
+        FuncBase(){};
+        virtual ~FuncBase(){};
+        virtual std::string getResult(){};
 };
 
 
@@ -59,3 +62,4 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
         start_pos += to.length();
     }
 }
+#endif

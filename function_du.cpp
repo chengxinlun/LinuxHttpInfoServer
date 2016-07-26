@@ -6,7 +6,7 @@ class FuncDu: public FuncBase
 {
     public:
         FuncDu();
-        ~FuncDu();
+        ~FuncDu(){};
         static std::pair<std::string, std::string> link()
         {
             return std::make_pair(func_name, lib_name);
@@ -40,4 +40,23 @@ FuncDu::FuncDu()
     std::string res = ss.str();
     replaceAll(res, "<td></td>", ""); // Delete extra blank table cells
     os_du = "<table>" + res + "</table>";
+}
+
+
+// Interface for dynamic lib linkage
+extern "C" FuncBase* create_func()
+{
+    return new FuncDu();
+}
+
+
+extern "C" void destroy_func(FuncBase* object)
+{
+    delete object;
+}
+
+
+extern "C" std::pair<std::string, std::string> getLink()
+{
+    return FuncDu::link();
 }

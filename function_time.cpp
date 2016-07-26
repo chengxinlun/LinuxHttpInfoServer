@@ -8,7 +8,7 @@ class FuncTime: public FuncBase
 {
     public:
         FuncTime();
-        ~FuncTime();
+        ~FuncTime(){};
         static std::pair<std::string, std::string> link()
         {
             return std::make_pair(func_name, lib_name);
@@ -35,4 +35,22 @@ FuncTime::FuncTime()
     char buf[256];
     strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
     os_time = buf;
+}
+
+
+extern "C" FuncBase* create_func()
+{
+    return new FuncTime();
+}
+
+
+extern "C" void destroy_func(FuncBase* object)
+{
+    delete object;
+}
+
+
+extern "C" std::pair<std::string, std::string> getLink()
+{
+    return FuncTime::link();
 }

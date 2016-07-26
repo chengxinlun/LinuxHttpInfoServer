@@ -8,26 +8,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-
-
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
-{
-    std::stringstream ss(s);
-    std::string item;
-    while (getline(ss, item, delim))
-    {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-
-std::vector<std::string> split(const std::string &s,char delim)
-{
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
-}
+#include "function_base.h"
 
 
 class Request
@@ -52,6 +33,7 @@ Request::Request(char* raw)
     size_t hb_splitter = raw_string.find("\r\n\r\n"); // Header-body splitter
     body = raw_string.substr(hb_splitter + 1, -1);
     raw_string = raw_string.substr(0, hb_splitter); // The rest is header part
+    ::replaceAll(raw_string, "\r\n", "\n");
     std::vector<std::string> ss = ::split(raw_string, '\n'); // Each line is a field of header
     // First line = method + " " + uri + " " + http version
     std::vector<std::string> first_line = ::split(ss[0], ' ');

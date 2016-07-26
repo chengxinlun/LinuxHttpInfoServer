@@ -9,7 +9,7 @@ class FuncVersion: public FuncBase
 {
     public:
         FuncVersion();
-        ~FuncVersion();
+        ~FuncVersion(){};
         static std::pair<std::string, std::string> link()
         {
             return std::make_pair(func_name, lib_name);
@@ -50,4 +50,22 @@ FuncVersion::FuncVersion()
     os_version = "<table><tr><td>Distribution: </td><td>" + id + " " + 
         release + "</td></tr><tr><td>Kernel Version: </td><td>" + kernel +
         "</td></tr></table>";
+}
+
+
+extern "C" FuncBase* create_func()
+{
+    return new FuncVersion();
+}
+
+
+extern "C" void destroy_func(FuncBase* object)
+{
+    delete object;
+}
+
+
+extern "C" std::pair<std::string, std::string> getLink()
+{
+    return FuncVersion::link();
 }
